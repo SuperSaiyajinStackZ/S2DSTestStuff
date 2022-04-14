@@ -33,18 +33,17 @@ export class S2DSROMData {
 	constructor() { this.ResetData(); }
 
 	/*
-		Load a ROM.
+		Load an Uint8Array Buffer for the ROM Data.
 
-		Path: The path to the ROM.
+		DataBuffer: An Uint8Array containing the ROM Data.
 	*/
-	Load(Path) {
+	Load(DataBuffer) {
 		this.ResetData();
-		const Info = Deno.statSync(Path);
 
-		/* Ensure ROM Size is correct. */
-		if (Info.size == 0x4000000) {
-			Size = Info.size;
-			Buffer = Deno.readFileSync(Path);
+		/* Check that the DataBuffer is not undefined and has the proper size. */
+		if (DataBuffer != undefined && DataBuffer.length == 0x4000000) {
+			Buffer = DataBuffer;
+			Size = Buffer.length;
 			View = new DataView(Buffer.buffer);
 
 			/* Check the ROM Gamecode / Title ID. */
@@ -214,18 +213,7 @@ export class S2DSROMData {
 		else       this.WriteData("uint8_t", Offs, (this.ReadData("uint8_t", Offs) & 0x0F) | (Data << 0x4)); // Bit 4 - 7.
 	}
 
-	/*
-		Writing the active Buffer back to a file.
-
-		Path: The path where to write the file to.
-		Unload: If unloading the whole data or not (false by default).
-	*/
-	WriteBack(Path, Unload = false) {
-		if (View == undefined) return;
-
-		Deno.writeFileSync(Path, Buffer);
-		if (Unload) this.ResetData();
-	}
+	GetUint8Array() { return Buffer; }
 };
 
 export let Instance = new S2DSROMData();

@@ -26,11 +26,11 @@
 
 ## Script Credits
 - Contributors: [SuperSaiyajinStackZ](https://github.com/SuperSaiyajinStackZ)
-- Last Updated: 29.03.2022
+- Last Updated: 15.04.2022
 - Purpose: Fetch and Extract the Strings from a The Sims 2 Nintendo DS ROM.
 - Supported Region: EUR, USA
 - Type: ROM Scripts
-- Version: v0.1.0
+- Version: v0.2.0
 <hr>
 
 ## Usage
@@ -50,4 +50,7 @@
 ## Changelog
 **v0.1.0**
 - Added the Initial Script on 29.03.2022.
+
+**v0.2.0**
+- Ported over latest changes from [S2GBAStringFetcher](https://github.com/SuperSaiyajinStackZ/S2GBATestStuff/tree/main/tools/scripts/S2GBAStringFetcher) on 15.04.2022.
 <hr>

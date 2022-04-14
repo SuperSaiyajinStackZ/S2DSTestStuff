@@ -52,19 +52,8 @@ const LocTable = [
 	]
 ];
 
-/*
-	Encoding Table for S2DSStringFetcher.
-	Starting with 0x20 and ASCII things, then with custom encoding at 0x7B.
-*/
+/* Encoding Table for S2DSStringFetcher. */
 const Encoding = [
-	/* ASCII related stuff. */
-	" ", "!", "\"", "#", "$", "%", "&", "'", "(", ")", "*", "+", ",", "-", ".", "/",
-	"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":", ";", "<", "=", ">", "?", "@",
-	"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
-	"[", "\\", "]", "^", "_", "`",
-	"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
-
-	/* Special. */
 	"©", "œ", "¡", "¿", "À", "Á", "Â", "Ã", "Ä", "Å", "Æ", "Ç", "È", "É", "Ê", "Ë",
 	"Ì", "Í", "Î", "Ï", "Ñ", "Ò", "Ó", "Ô", "Õ", "Ö", "Ø", "Ù", "Ú", "Ü", "ß", "à",
 	"á", "â", "ã", "ä", "å", "æ", "ç", "è", "é", "ê", "ë", "ì", "í", "î", "ï", "ñ",
@@ -83,29 +72,14 @@ function Decode(ByteArray) {
 	let Decoded = "";
 
 	for (let Idx = 0x0; Idx < ByteArray.length; Idx++) {
-		if (ByteArray[Idx] == 0x0)                                 Decoded += "\0"; // NULL Terminator.
-		else if (ByteArray[Idx] == 0xA)                            Decoded += "\n"; // New Line.
-		else if (ByteArray[Idx] >= 0x20 && ByteArray[Idx] <= 0xBB) Decoded += Encoding[ByteArray[Idx] - 0x20]; // Encoding.
+		const Byte = ByteArray[Idx];
+
+		if ((Byte >= 0x0 && Byte <= 0x9) || (Byte >= 0xB && Byte <= 0x1F) || (Byte >= 0xBC)) break;
+		else if (Byte >= 0x7B && Byte <= 0xBB) Decoded += Encoding[Byte - 0x7B];
+		else                                   Decoded += String.fromCharCode(Byte);
 	}
 
 	return Decoded;
-}
-
-/*
-	Formats an ID into a 4 digit padding number string.
-
-	ID: The ID to format.
-*/
-function FormatID(ID) {
-	let Num = ID.toString();
-
-	/* Padding to 4 digits. */
-	if (ID < 10)        Num = "000" + ID.toString();
-	else if (ID < 100)  Num =  "00" + ID.toString();
-	else if (ID < 1000) Num =   "0" + ID.toString();
-	else                Num =         ID.toString();
-
-	return Num;
 }
 
 
@@ -119,7 +93,7 @@ export class S2DSStringFetcher {
 	MaxStringID() { return 0xC37; } // 3127 Strings exist.
 
 	/* Some Meta data. */
-	Version() { return "v0.1.0"; }
+	Version() { return "v0.2.0"; }
 	Contributors() { return "SuperSaiyajinStackZ"; }
 	Name() { return "S2DSStringFetcher"; }
 	Purpose() { return "Fetch and Extract the Strings from a The Sims 2 Nintendo DS ROM."; }
@@ -167,22 +141,21 @@ export class S2DSStringFetcher {
 	}
 
 	/*
-		Extracts all 3127 Strings of a specific Language into a Text file.
+		Extracts all 3127 Strings of a specific Language into a Raw String.
 
 		Language: The Language Index ( 0 - 4 ).
-		Path: The path to where to store the file.
 	*/
-	Extract(Language, Path) {
-		if (Language >= this.MaxLang()) return;
+	Extract(Language) {
+		if (Language >= this.MaxLang()) return "";
 		let RawString = "";
 
 		for (let Idx = 0x0; Idx < this.MaxStringID(); Idx++) {
-			RawString += FormatID(Idx) + " - " + this.Fetch(Language, Idx);
+			RawString += Idx.toString(10).padStart(4, "0") + " - " + this.Fetch(Language, Idx); // XXXX - String.
 
 			if (Idx < this.MaxStringID() - 1) RawString += "\n";
 		}
 
-		Deno.writeTextFileSync(Path, RawString);
+		return RawString;
 	}
 };
 

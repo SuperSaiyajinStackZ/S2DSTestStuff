@@ -24,6 +24,7 @@
 *         reasonable ways as different from the original version.
 */
 
+import { DenoHelper } from "../../common/DenoHelper.js";
 import { Instance as DataInstance } from "../../common/S2DSROMData.js";
 import { Instance as Script } from "./S2DSStringFetcher.js";
 
@@ -80,13 +81,13 @@ console.log(
 );
 
 if (Args.Filename != "" && Args.Outfolder != "") {
-	DataInstance.Load(Args.Filename);
+	DataInstance.Load(DenoHelper.FileToU8Array(Args.Filename));
 	Script.Initialize();
 
 	if (Script.IsGood()) {
 		if (Args.Outfolder[Args.Outfolder.length - 1] != "/") { // Only do this, if the last character is not / inside that argument.
 			Deno.mkdirSync(Args.Outfolder, { recursive: true }); // Make the dirs just in case.
-			for (let LangIdx = 0x0; LangIdx < Script.MaxLang(); LangIdx++) Script.Extract(LangIdx, (Args.Outfolder + "/" + LangNames[LangIdx] + "-Strings.txt"));
+			for (let LangIdx = 0x0; LangIdx < Script.MaxLang(); LangIdx++) DenoHelper.WriteTextToFile(Script.Extract(LangIdx), (Args.Outfolder + "/" + LangNames[LangIdx] + "-Strings.txt"));
 		}
 		
 	} else {
